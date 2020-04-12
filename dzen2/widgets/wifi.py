@@ -17,52 +17,48 @@ class WiFiWidget(Widget):
 
 	def Update(self):
 		# Get iwconfig report:
-		output = self.GetFromShell("/sbin/iwconfig " + self.INTERFACE)
+		output = self.GetFromShell(["/sbin/iwconfig", self.INTERFACE])
 		# Check if WiFi adapter is turned on: "Tx-Power=22 dBm" or "Tx-Power=off"
 		POWER_STATE = re.search('%s(.*)%s' % ("Tx-Power=", " "), output).group(1)
 
 		if POWER_STATE != "off":
 			IS_UP = True
 			# Check connection status:
-			if self.GetFromShell("cat /sys/class/net/" + self.INTERFACE + "/operstate") != 'down':
-				CONNECTED = True
+			if self.GetFromShell(["cat", "/sys/class/net/" + self.INTERFACE + "/operstate"]) != 'down':
+				self.CONNECTED = True
 
 		if IS_UP:
-			if CONNECTED:
+			if self.CONNECTED:
 				# Connected to some SSID:
-				ESSID = re.search('%s(.*)%s' % ('ESSID:"', '"'), output).group(1)
+				self.ESSID = re.search('%s(.*)%s' % ('ESSID:"', '"'), output).group(1)
 				self.QUALITY = self.GetQualityLevel()
-				output = ESSID + "(" + str(self.QUALITY) + "%)"
+				output = self.ESSID + "(" + str(self.QUALITY) + "%)"
 			else:
 				# WiFi is on but not connected to any SSID:
 				output = "No connection"
 		else:
-			# Wifi is off:
+			# Wifi adapter is off:
 			output = "Off"
 		self.TEXT = output
-		self.TEXT = self.AlignCenter(self.TEXT, self.WIDTH)
 
 	def Dzen(self):
 		# Color depends on connection quality:
 		if self.QUALITY > 80:
-			color = "#00FF00"
+			self.TEXT_COLOR = "#00FF00"
 		elif self.QUALITY == 0:
-			color = "#444444"
+			self.TEXT_COLOR = "#444444"
 		elif self.QUALITY < 40:
-			color = "#FF0000"
+			self.TEXT_COLOR = "#FF0000"
 		elif self.QUALITY < 60:
-			color = "#FFAE00"
+			self.TEXT_COLOR = "#FFAE00"
 		elif self.QUALITY < 80:
-			color = "#FFF600"
-
-		return self.HEADER + "^fg(" + color + ")" + self.TEXT
-
-	def Width(self):
-		return self.WIDTH
+			self.TEXT_COLOR = "#FFF600"
+		self.Format()
+		return self.HEADER + "^fg(" + self.TEXT_COLOR + ")" + self.TEXT
 
 	def WidthPxl(self, font):
-		w = self.GetFromShell("dzen2-textwidth " + font + " '" + self.HEADER + self.TEXT + "'")
-		return int(w)
+		w = Widget.WidthPxl(self, font)
+		return w
 
 	def GetQualityLevel(self):
 		'''cat /proc/net/wireless returns this kind of data:

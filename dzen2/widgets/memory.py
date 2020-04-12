@@ -10,12 +10,15 @@ class MemoryWidget(Widget):
 	BAR = '#A6F09D'     # green background of bar-graphs
 	GRN = '#65A765'     # light green (normal)
 	RED = '#FF0000'     # light red/pink (warning)
+	USEDBAR = 0
+	FREEBAR = 0
 
 	def __init__(self, width):
 		Widget.__init__(self, width)
 		self.HEADER = "RAM: "
 
 	def Update(self):
+		self.TEXT = ""
 		totalRAM = 0
 		freeRAM = 0
 		with open("/proc/meminfo") as origin_file:
@@ -31,23 +34,20 @@ class MemoryWidget(Widget):
 							freeRAM = int(line[0])
 
 		usedRAM = totalRAM - freeRAM
-		usedbar = int(usedRAM * self.INDICATOR_LENGHT / totalRAM)
-		freebar = int(freeRAM * self.INDICATOR_LENGHT / totalRAM)
+		self.USEDBAR = int(usedRAM * self.INDICATOR_LENGHT / totalRAM)
+		self.FREEBAR = int(freeRAM * self.INDICATOR_LENGHT / totalRAM)
 
-		if usedbar >= (self.INDICATOR_LENGHT / 100 * self.SCARCE_THRESHOLD):
-			fgcol = "^fg(" + self.RED + ")"
+		if self.USEDBAR >= (self.INDICATOR_LENGHT / 100 * self.SCARCE_THRESHOLD):
+			self.TEXT_COLOR = "^fg(" + self.RED + ")"
 		else:
-			fgcol = "^fg(" + self.GRN + ")"
-		self.TEXT = "^fg(white)^p(;4)" + fgcol + "^r(" + str(usedbar) + \
-			"x8)^fg(" + self.BAR + ")^r(" + str(freebar) + "x8)^p(;-4)"
-		self.TEXT = self.AlignCenter(self.TEXT, self.WIDTH)
+			self.TEXT_COLOR = "^fg(" + self.GRN + ")"
 
 	def Dzen(self):
-		return self.HEADER + self.TEXT
-
-	def Width(self):
-		return self.WIDTH
+		#self.Format()
+		return self.HEADER + \
+			"^fg(white)^p(;4)" + self.TEXT_COLOR + "^r(" + str(self.USEDBAR) + \
+				"x8)^fg(" + self.BAR + ")^r(" + str(self.FREEBAR) + "x8)^p(;-4)"
 
 	def WidthPxl(self, font):
-	    w = self.GetFromShell("dzen2-textwidth " + font + " '" + self.HEADER + "'")
-	    return int(w) + self.INDICATOR_LENGHT
+		w = Widget.WidthPxl(self, font) + self.INDICATOR_LENGHT
+		return int(w)

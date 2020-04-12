@@ -9,11 +9,11 @@ class VolumeWidget(Widget):
 		self.HEADER = "VOL: "
 
 	def Update(self):
-		amixerData = self.GetFromShell("amixer sget Master")
+		amixerData = self.GetFromShell(["amixer", "sget", "Master"])
 		self.TEXT = self.GetFromShell(
-			"echo '" + amixerData + "' | grep -m 1 -oP '(?<= \[).*?(?=%\] )'")
-		STATUS = self.GetFromShell("echo '" + amixerData +
-						  "' | grep -m 1 -oP '(?<=%\] \[).*?(?=\])'")
+			["echo", amixerData, "|", "grep", "-m", "1", "-oP", "(?<= \[).*?(?=%\] )"])
+		STATUS = self.GetFromShell(["echo", amixerData,
+						  "|", "grep", "-m", "1", "-oP", "'(?<=%\] \[).*?(?=\])'"])
 		'''
 		if TEXT == 0:
 			STATUS =   # level 0 (muted icon)
@@ -27,34 +27,29 @@ class VolumeWidget(Widget):
 			STATUS =  # 74 and less (high volume icon)
 		else: STATUS =  # full throttle (high volume icon)
 		'''
-		self.TEXT = self.AlignCenter(self.TEXT, self.WIDTH)
-
-
 
 	def Dzen(self):
+		self.Format()
 		return self.HEADER + self.TEXT
 
-	def Width(self):
-		return self.WIDTH
-
 	def WidthPxl(self, font):
-		w = self.GetFromShell("dzen2-textwidth " + font + " '" + self.HEADER + self.TEXT + "'")
-		return int(w)
+		w = Widget.WidthPxl(self, font)
+		return w
 
 	#-------------------------------------------------------------
 	# Volume change functions:
 
 	def IncreaseVolume(self, step):
-		self.GetFromShell("amixer -q sset Master " + step + "%+ unmute")
+		self.GetFromShell(["amixer", "-q", "sset", "Master", step + "%+", "unmute"])
 		self.Update()
 
 	def DecreaseVolume(self, step):
-		self.GetFromShell("amixer -q sset Master " + step + "%- unmute")
+		self.GetFromShell(["amixer", "-q", "sset", "Master", step + "%-", "unmute"])
 		self.Update()
 
 	def MuteVolume(self):
-		self.GetFromShell("amixer -q sset Master toggle")
+		self.GetFromShell(["amixer", "-q", "sset", "Master", "toggle"])
 
 	def SetVolume(self, newVolume):
-		self.GetFromShell("amixer -q sset Master " + newVolume + "$1% unmute")
+		self.GetFromShell(["amixer", "-q", "sset", "Master", newVolume + "%", "unmute"])
 		self.Update()
