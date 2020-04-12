@@ -37,10 +37,12 @@ Requirements:
 - i3 window manager - for i3 workspaces indication, haha.
 
 Fonts:
+
 dzen2 uses the old and kinda obsolete fonts management system (X Logical Font Description), and it only able to work with
 fonts registered by this X system. Usually it's just fonts located in '/usr/share/fonts/X11' directory. It doesn't know about any other fonts installed on your system and it doesn't support tools like 'fontconfig'.
 As an example, there's no monospace fonts in X fonts, so you can't get stable line that stays aligned and nice, it will twitch and jerk everytime when some text is changed on the bar line. To eliminate this problem, need to use some monospace font in dzen2.
 How to do that:
+
 Find out which font you'd like to use and where it is stored in your system. Usually, fonts could be found in '/usr/share/fonts' directory. Also, you could have put some additional fonts to your '$HOME/.fonts'.
 To make a font available for X fonts system and dzen2, gotta do the following:
   1. navigate to the directory with font files. e.g.:
@@ -55,4 +57,4 @@ To make a font available for X fonts system and dzen2, gotta do the following:
 Now the font should work with dzen2. To check out fonts recognized by X fonts system, you can use the tool 'xfontsel'. It represents the font and shows the font code usefull in dzen2 config (e.g., -*-liberation mono-*-*-*-*-*-*-*-*-m-*-*-* ).
 The dropdown menus will have grayed out option for unsupported features of the font (like unsupported spacing modes: mono, regular), sizes, etc. Check out some Arch Wiki info:
   https://wiki.archlinux.org/index.php/Fonts#Older_applications
-  https://wiki.archlinux.org/index.php/X_Logical_Font_Description
+https://wiki.archlinux.org/index.php/X_Logical_Font_Description
