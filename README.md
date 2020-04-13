@@ -69,11 +69,8 @@ To make a font available for X fonts system and dzen2, gotta do the following:
     `somenumber-somename.conf`. The number is used by X server to load files in order determined by the numbers in their names, and X server only detects `*.conf` files in this directory.
     So, in the file (e.g., `/etc/X11/xorg.conf.d/30-customfonts.conf`) write the paths to folders where your new fonts are located. From my example with Liberation font, I put there just one Liberation directory:
 
-`
-Section "Files"
+    Section "Files"
+        FontPath "/usr/share/fonts/truetype/liberation"
+    EndSection
 
-  FontPath "/usr/share/fonts/truetype/liberation"
-  
-EndSection
-`
 After that the font should work with dzen2. For example, I use the font description `-*-liberation mono-*-*-*-*-*-*-*-*-m-*-*-*` to use Liberation Mono font in this dzen2 bar panel.
