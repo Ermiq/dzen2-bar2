@@ -9,8 +9,12 @@ class i3WorkspacesWidget(WidgetBase):
 
 	WORKSPACES = [""]
 	
-	def __init__(self, width, action = ""):
-		WidgetBase.__init__(self, width, action)
+	def __init__(self, width):
+		'''
+		Unlike other widgets, this one doesn't take 'action' argument.
+		The action is hardcoded to "i3-msg workspace $ws_num" commands.
+		'''
+		WidgetBase.__init__(self, width)
 		self.HEADER = config.WORKSPACE_HEADER
 
 	def Update(self):

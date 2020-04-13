@@ -15,6 +15,23 @@ def __init__():
 FONT = "-*-liberation mono-*-*-*-*-14-*-*-*-m-*-*-*"
 
 
+# Widgets list:
+'''The format is:
+[
+"RAMWidget"		- widget name (file name without *.py)
+30				- Max characters in output text
+"1, nautilus"	- mouse button, command to execute on mouse button
+]
+'''
+WIDGETS = [
+	[ "MediaplayerWidget",	40,	"1, rhythmbox"		],
+	[ "WiFiWidget",			18,	"1, wicd-client"	],
+	[ "RAMWidget",			30,	"1, nautilus"		],
+    [ "BatteryWidget",		30	],
+	[ "VolumeWidget",		7	],
+	[ "DateWidget",			20	],
+]
+
 # Some colors:
 clrTX1 = '#DBDADA'		# medium grey text
 clrTX2 = '#F9F9F9'		# light grey text
@@ -35,8 +52,10 @@ clrBLK = '#000000'		# black
 
 # Bar size:
 BAR_WIDTH = '1920'
-BAR_HEIGHT = '50'
+BAR_HEIGHT = '50'	# doesn't change anything... Have no idea.)))
 
+# Default width limit for widget content:
+DEFAULT_WIDGET_WIDTH = 10	# Characters amount, not pixels!
 
 # Separator:
 # Looks like a green vertical line 2 pixels width,
@@ -50,16 +69,16 @@ SLEEP = 1       # whole seconds, no decimals!
 
 
 # Workspaces header:
-WORKSPACE_HEADER = " Workspaces:"
+WORKSPACE_HEADER = " "
 
 
 # Date/time format:
 DATE_FORMAT = "%a, %d %b. %H:%M:%S"
 
 
-# WiFi widget:
+# WiFi widget header:
 WIFI_HEADER = "WiFi:"
-# Name of WiFi (see your '/sbin/iwconfig' output). Could be "wlan0" on your distro.
+# Name of WiFi interface (see your '/sbin/iwconfig' output). Could be "wlan0" on some distros):
 WIFI_INTERFACE = "wlp2s0"
 
 
@@ -80,4 +99,4 @@ BATTERY_HEADER = "BAT:"
 SONG_FIRST = True
 # Widget will check if one of these players is running,
 # the first match will be used as a source for widget output:
-PLAYERS = [ "rhythmbox", "spotify", "vlc", "audacious", "xmms2", "mplayer", "quodlibet" ]
+PLAYERS = [ "rhythmbox", "audacious", "spotify", "vlc", "quodlibet", "xmms2", "mplayer" ]

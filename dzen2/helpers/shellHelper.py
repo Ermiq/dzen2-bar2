@@ -4,8 +4,8 @@ import json
 
 '''
 Has a couple of functions used to execute Linux shell commands.
-The functions are not complicated, but need to type a whole line of code,
-so, I packed them to a separate functions.
+If commands are passed with errors or packages are not installed,
+the functions will return "0" and print the error in stdout.
 '''
 
 import subprocess
@@ -19,8 +19,16 @@ def ExecSplit(listOfCommands):
 	Warning: Use it for single commands only (with command arguments as elements in list).
 	For complex piped commands like "echo smthing | grep 'thing' | awk {'whatever'}"
 	use 'ExecOneLine()' instead.'''
-	out = subprocess.check_output(
-		listOfCommands, universal_newlines=True).strip()
+	out = "0"
+	try:
+		out = subprocess.check_output(
+			listOfCommands, universal_newlines=True).strip()
+	except subprocess.CalledProcessError as e:
+		if e.output.startswith('error'):
+			error = json.loads(e.output[7:]) # Skip "error: "
+			pass
+	except FileNotFoundError as e:
+		pass
 	return out
 
 def ExecOneLine(command):
@@ -29,6 +37,14 @@ def ExecOneLine(command):
 	Usefull for simple commands with no variables (e.g.: ExecOneLine("date +"%d %m %H:%M:%S"))
 	and for complicated combinations of multiple commands, such as
 	"echo 'Hello world' | grep -E -oP 'Hello' | awk {blahblah}".'''
-	out = subprocess.check_output(
-		command, shell=True, universal_newlines=True).strip()
+	out = "0"
+	try:
+		out = subprocess.check_output(
+			command, shell=True, universal_newlines=True).strip()
+	except subprocess.CalledProcessError as e:
+		if e.output.startswith('error'):
+			error = json.loads(e.output[7:]) # Skip "error: "
+			pass
+	except FileNotFoundError as e:
+		pass
 	return out
