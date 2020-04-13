@@ -1,17 +1,17 @@
 #!/bin/python
 
-from .widgetBase import Widget
+from widgets.WidgetBase.WidgetBase import WidgetBase
+from helpers import shellHelper
+from config import config
 
-class MediaPlayerWidget(Widget):
+class MediaPlayerWidget(WidgetBase):
 	"""Requires playerctl binary to be in your path (except cmus)
 	See: https://github.com/acrisci/playerctl"""
 
 	PLAYER_NAME = ""
-	SONG_FIRST = True
-	PLAYERS = [ "rhythmbox", "spotify", "vlc", "audacious", "xmms2", "mplayer", "quodlibet" ]
 
-	def __init__(self, width):
-		Widget.__init__(self, width)
+	def __init__(self, width, action = ""):
+		WidgetBase.__init__(self, width, action)
 	
 	def Update(self):
 		# If the player name has not been specified as an argument,
@@ -19,11 +19,11 @@ class MediaPlayerWidget(Widget):
 		# and try to find any that matches the given list of audio players.
 		self.PLAYER_NAME == ""
 		# Get all currently running players
-		runningPlayers = self.GetFromShell(["playerctl", "-l"])
+		runningPlayers = shellHelper.ExecOneLine("playerctl -l")
 		# Magic...
 		runningPlayers = runningPlayers.split()
 		for line in runningPlayers:
-			for p in self.PLAYERS:
+			for p in config.PLAYERS:
 				if p in line:
 					self.PLAYER_NAME = line
 		
@@ -38,18 +38,20 @@ class MediaPlayerWidget(Widget):
 				3) playerctl $player_arg next;;			# right button click
 			esac'''
 
-			artist = self.GetFromShell(["playerctl", self.PLAYER_NAME, "metadata", "artist"])
-			title = self.GetFromShell(["playerctl", self.PLAYER_NAME, "metadata", "title"])
+			artist = shellHelper.ExecSplit(["playerctl", self.PLAYER_NAME, "metadata", "artist"])
+			title = shellHelper.ExecSplit(["playerctl", self.PLAYER_NAME, "metadata", "title"])
 
-			if self.SONG_FIRST:
+			if config.SONG_FIRST:
 				self.TEXT = title + " - " + artist
 			else:
 				self.TEXT = artist + " - " + title
 
 	def Dzen(self):
-		self.Format()
-		return self.TEXT
+		self.TextFormat()
+		self.DZEN2LINE = self.TEXT
+		self.AddAction()
+		return self.DZEN2LINE
 	
 	def WidthPxl(self, font):
-		w = Widget.WidthPxl(self, font)
+		w = WidgetBase.WidthPxl(self, font)
 		return w

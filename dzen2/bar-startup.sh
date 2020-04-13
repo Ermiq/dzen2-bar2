@@ -34,27 +34,6 @@ kill -9 $(pgrep dzen2)
 # don't restart dzen2; just exit instead:
 [ "$1" = 'stop' ] && exit 0
 
-# Not exiting; proceed then:
-
-#FONT="bitstream-terminal-bold-r-normal--5-14-10-10-c-11-iso8859-1"
-FONT="-*-fixed-medium-*-*-*-12-*-*-*-*-*-*-*"
-BAR_WIDTH=1920
-BAR_HEIGHT=16
-
-# Define colors and spacers etc..:
-TX1='#DBDADA'     # medium grey text
-TX2='#F9F9F9'     # light grey text
-GRY='#909090'     # dark grey text
-BAR='#A6F09D'     # green background of bar-graphs
-GRN='#65A765'     # light green (normal)
-YEL='#FFFFBF'     # light yellow (caution)
-RED='#FF0000'     # light red/pink (warning)
-WHT='#FFFFFF'     # white
-BLK='#000000'     # black
-SEP="^p(8;)^fg($GRN)^r(2x24)^p(8;)^fg($WHT)"      # item separator block/line
-SLEEP=1           # update interval (whole seconds, no decimals!)
-CHAR=$((20))      # pixel width of characters of font used
-
 # Python bar generator runs in an endless loop and
 # outputs the data for DZEN in stdout every second.
-~/.config/dzen2/bar-generator.py | dzen2 -dock -ta l -u -p
+~/.config/dzen2/bar_generator.py | dzen2 -dock -ta l -u -p &

@@ -1,21 +1,25 @@
 #!/bin/python
 
-from .widgetBase import Widget
+from widgets.WidgetBase.WidgetBase import WidgetBase
+from helpers import shellHelper
+from config import config
 
-class DateWidget(Widget):
+class DateWidget(WidgetBase):
 
-	def __init__(self, width):
-		Widget.__init__(self, width)
+	def __init__(self, width, action = ""):
+		WidgetBase.__init__(self, width, action)
 	
 	def Update(self):
-		self.TEXT = self.GetFromShellLong("date +'%a, %d %b. %H:%M:%S'")
+		self.TEXT = shellHelper.ExecOneLine("date +'" + config.DATE_FORMAT + "'")
 
 	def Dzen(self):
-		self.Format()
-		return self.TEXT
+		self.TextFormat()
+		self.DZEN2LINE = self.TEXT
+		self.AddAction()
+		return self.DZEN2LINE
 
 	def WidthPxl(self, font):
-		s = "Su, 12 apl. 15:34:25"
-		w = self.GetFromShell(["dzen2-textwidth", font, s])
-		#w = Widget.WidthPxl(self, font)
+		#s = "Su, 12 apr. 15:34:25"
+		#w = shellHelper.ExecSplit(["dzen2-textwidth", font, s])
+		w = WidgetBase.WidthPxl(self, font)
 		return int(w)

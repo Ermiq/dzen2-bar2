@@ -1,19 +1,21 @@
 #!/bin/python
 
-from .widgetBase import Widget
+from widgets.WidgetBase.WidgetBase import WidgetBase
+from helpers import shellHelper
+from config import config
 
-class VolumeWidget(Widget):
+class VolumeWidget(WidgetBase):
 
-	def __init__(self, width):
-		Widget.__init__(self, width)
-		self.HEADER = "VOL: "
+	def __init__(self, width, action = ""):
+		WidgetBase.__init__(self, width, action)
+		self.HEADER = config.VOLUME_HEADER
 
 	def Update(self):
-		amixerData = self.GetFromShell(["amixer", "sget", "Master"])
-		self.TEXT = self.GetFromShell(
-			["echo", amixerData, "|", "grep", "-m", "1", "-oP", "(?<= \[).*?(?=%\] )"])
-		STATUS = self.GetFromShell(["echo", amixerData,
-						  "|", "grep", "-m", "1", "-oP", "'(?<=%\] \[).*?(?=\])'"])
+		amixerData = shellHelper.ExecOneLine("amixer sget Master")
+		self.TEXT = shellHelper.ExecOneLine(
+			"echo '" + amixerData + "' | grep -m 1 -oP '(?<= \[).*?(?=%\] )'")
+		STATUS = shellHelper.ExecOneLine("echo '" + amixerData +
+						  "' | grep -m 1 -oP '(?<=%\] \[).*?(?=\])'")
 		'''
 		if TEXT == 0:
 			STATUS =   # level 0 (muted icon)
@@ -29,27 +31,29 @@ class VolumeWidget(Widget):
 		'''
 
 	def Dzen(self):
-		self.Format()
-		return self.HEADER + self.TEXT
+		self.TextFormat()
+		self.DZEN2LINE = self.HEADER + self.TEXT
+		self.AddAction()
+		return self.DZEN2LINE
 
 	def WidthPxl(self, font):
-		w = Widget.WidthPxl(self, font)
+		w = WidgetBase.WidthPxl(self, font)
 		return w
 
 	#-------------------------------------------------------------
 	# Volume change functions:
 
 	def IncreaseVolume(self, step):
-		self.GetFromShell(["amixer", "-q", "sset", "Master", step + "%+", "unmute"])
+		shellHelper.ExecOneLine("amixer -q sset Master " + step + "%+ unmute")
 		self.Update()
 
 	def DecreaseVolume(self, step):
-		self.GetFromShell(["amixer", "-q", "sset", "Master", step + "%-", "unmute"])
+		shellHelper.ExecOneLine("amixer -q sset Master " + step + "%- unmute")
 		self.Update()
 
 	def MuteVolume(self):
-		self.GetFromShell(["amixer", "-q", "sset", "Master", "toggle"])
+		shellHelper.ExecOneLine("amixer -q sset Master toggle")
 
 	def SetVolume(self, newVolume):
-		self.GetFromShell(["amixer", "-q", "sset", "Master", newVolume + "%", "unmute"])
+		shellHelper.ExecOneLine("amixer -q sset Master " + newVolume + "% unmute")
 		self.Update()

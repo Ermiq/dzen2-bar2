@@ -1,45 +1,62 @@
 #!/bin/python
 
 import json
-from .widgetBase import Widget
+from widgets.WidgetBase.WidgetBase import WidgetBase
+from helpers import shellHelper
+from config import config
 
-class i3WorkspacesWidget(Widget):
+class i3WorkspacesWidget(WidgetBase):
 
 	WORKSPACES = [""]
-	TX1 = '#DBDADA'     # medium grey text
-	TX2 = '#F9F9F9'     # light grey text
-	GRY = '#909090'     # dark grey text
-	BAR = '#A6F09D'     # green background of bar-graphs
-	GRN = '#65A765'     # light green (normal)
-	BGR = '#00FF00'		# bright green
-	YEL = '#FFFFBF'     # light yellow (caution)
-	RED = '#FF0000'     # light red/pink (warning)
-	WHT = '#FFFFFF'     # white
-	BLK = '#000000'     # black
-
-	def __init__(self, width):
-		Widget.__init__(self, width)
+	
+	def __init__(self, width, action = ""):
+		WidgetBase.__init__(self, width, action)
+		self.HEADER = config.WORKSPACE_HEADER
 
 	def Update(self):
 		self.TEXT = ""
 		self.WORKSPACES.clear()
 
-		x = json.loads(self.GetFromShell(["i3-msg", "-t", "get_workspaces"]))
-
-		# This may return more than 1 workspace if you have more than one monitor.
+		x = json.loads(shellHelper.ExecOneLine("i3-msg -t get_workspaces"))
+		
+		'''
+		json parser will return workspace names with no quotes.
+		But to switch to an i3 workspace with shell command
+		( i3-msg workspace "someName" ) we need the quotes.
+		More over, the quoted name itself should be placed in another pair
+		of quotes to pass through dzen2 to Linux shell properly.
+		So, in the end, to switch to a workspace that has its name declaired as
+		" 2 " in i3 config file, gotta execute the command:
+		i3-msg workspace '" 2 "'
+		Same method will work with workspace names declared in i3 config without
+		quotes as well. Names like this:
+		set $ws3 Firefox
+		So, to pass the correct command to dzen2 line using a name variable from
+		json we'll do a lot of quotes and pluses dark magic here.
+		'''
 		for workspace in x:
 			self.TEXT += workspace["name"]
 			if workspace["focused"]:
-				self.WORKSPACES.append("^fg({})^bg({}){}".format(
-					self.BGR, self.BAR, workspace["name"]))
+				# ^ib(1) - ignore bar background, so widget will get it's own bg color.
+				self.WORKSPACES.append("^ca({})^ib(0)^fg({})^bg({}){}^ib(1)^ca()".format(
+					"1, i3-msg workspace " + "'" + '"' + str(workspace["name"] + '"' + "'"),
+					config.clrBLK,
+					config.clrGRN,
+					workspace["name"]
+					))
 			else:
-				self.WORKSPACES.append("^fg({})^bg({}){}".format(
-					self.GRY, self.BLK, workspace["name"]))
+				self.WORKSPACES.append("^ca({})^fg({})^bg({}){}^ca()".format(
+					"1, i3-msg workspace " + "'" + '"' + str(workspace["name"] + '"' + "'"),
+					config.clrGRY,
+					config.clrBLK,
+					workspace["name"]
+					))
 
 	def Dzen(self):
-		self.Format()
+		self.TextFormat()
+		self.WORKSPACES.insert(0, self.HEADER) # Put the HEADER as the first element
 		return self.WORKSPACES
 	
 	def WidthPxl(self, font):
-		w = Widget.WidthPxl(self, font)
+		w = WidgetBase.WidthPxl(self, font)
 		return w

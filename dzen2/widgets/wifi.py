@@ -1,30 +1,30 @@
 #!/bin/python
 
 import re
-from .widgetBase import Widget
+from widgets.WidgetBase.WidgetBase import WidgetBase
+from helpers import shellHelper
+from config import config
 
-class WiFiWidget(Widget):
-
-	INTERFACE = "wlp2s0"
+class WiFiWidget(WidgetBase):
 	IS_UP = False
 	CONNECTED = False
 	QUALITY = 0
 	ESSID = ""
 
-	def __init__(self, width):
-		Widget.__init__(self, width)
-		self.HEADER = "WiFi: "
+	def __init__(self, width, action = ""):
+		WidgetBase.__init__(self, width, action)
+		self.HEADER = config.WIFI_HEADER
 
 	def Update(self):
 		# Get iwconfig report:
-		output = self.GetFromShell(["/sbin/iwconfig", self.INTERFACE])
+		output = shellHelper.ExecOneLine("/sbin/iwconfig " + config.WIFI_INTERFACE)
 		# Check if WiFi adapter is turned on: "Tx-Power=22 dBm" or "Tx-Power=off"
 		POWER_STATE = re.search('%s(.*)%s' % ("Tx-Power=", " "), output).group(1)
 
 		if POWER_STATE != "off":
 			IS_UP = True
 			# Check connection status:
-			if self.GetFromShell(["cat", "/sys/class/net/" + self.INTERFACE + "/operstate"]) != 'down':
+			if shellHelper.ExecOneLine("cat /sys/class/net/" + config.WIFI_INTERFACE + "/operstate") != 'down':
 				self.CONNECTED = True
 
 		if IS_UP:
@@ -44,20 +44,22 @@ class WiFiWidget(Widget):
 	def Dzen(self):
 		# Color depends on connection quality:
 		if self.QUALITY > 80:
-			self.TEXT_COLOR = "#00FF00"
+			self.TEXT_COLOR = config.clrBGR
 		elif self.QUALITY == 0:
-			self.TEXT_COLOR = "#444444"
+			self.TEXT_COLOR = config.clrOFF
 		elif self.QUALITY < 40:
-			self.TEXT_COLOR = "#FF0000"
+			self.TEXT_COLOR = config.clrRED
 		elif self.QUALITY < 60:
-			self.TEXT_COLOR = "#FFAE00"
+			self.TEXT_COLOR = config.clrORG
 		elif self.QUALITY < 80:
-			self.TEXT_COLOR = "#FFF600"
-		self.Format()
-		return self.HEADER + "^fg(" + self.TEXT_COLOR + ")" + self.TEXT
+			self.TEXT_COLOR = config.clrYEL
+		self.TextFormat()
+		self.DZEN2LINE = self.HEADER + "^fg(" + self.TEXT_COLOR + ")" + self.TEXT
+		self.AddAction()
+		return self.DZEN2LINE
 
 	def WidthPxl(self, font):
-		w = Widget.WidthPxl(self, font)
+		w = WidgetBase.WidthPxl(self, font)
 		return w
 
 	def GetQualityLevel(self):
@@ -74,7 +76,7 @@ he table. When this entry = 70. it means the connection quality is 100% stable.
 			# Iterate through lines:
 			for line in origin_file:
 				# Look for "wlp2s0:" or "wlan0:" in lines:
-				if re.search(self.INTERFACE + ':', line):
+				if re.search(config.WIFI_INTERFACE + ':', line):
 					# Found line with values. Split it into a list of entries:
 					line = line.split()
 					# Get digital value from the 3rd entry (index 2 in list).
