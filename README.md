@@ -12,32 +12,35 @@ If you're looking for an example of a dzen2 panel/bar setup, not overwhelmed wit
 without sparkles and whistles, just a basic stuff that will probably start successfully on another machine and not just
 on the one it has been developed on, then you're in right place.
 
-What's there:
+Some configuration with click actions support available in `config.py` file.
 
-* i3 workspaces indicator;
+<b>What's there:</b>
+* i3 workspaces indicator (click on ws name to go to);
+* media player widget with previous/next buttons (requires `playerctl` package);
 * WiFi - shows SSID and connection quality;
 * Volume indicator;
 * RAM usage bar;
-* Battery bar
+* Battery bar;
 * Time/date.
 
-Installation:
+<b>Installation:</b>
 
-- Clone or download this repository;
-- Put `dzen2` folder in your `$HOME/.config` directory;
-- Give all the files execution permissions;
-- Run `dzen2-startup.sh` script.
+* Clone or download this repository;
+* Put `dzen2` folder in your `$HOME/.config` directory;
+* Give all the files execution permissions;
+* Run `dzen2-startup.sh` script.
 
-Requirements:
+<b>Requirements:</b>
 
 - `python` (probably version 3+);
 - `amixer` - for volume indicator;
 - `acpi` - for battery indicator (I think it's installed by default on every distribution);
 - for WiFi check out your interface names (run `/sbin/iwconfig`). By default `wifi.py` script uses `"wlp2s0"` name for
 WiFi adapter. On some distros you'll need to change it to "wlan0" (see `wifi.py` file);
-- i3 window manager - for i3 workspaces indication, haha :)
+- `playerctl` for media player widget;
+- i3 window manager - for i3 workspaces indication, haha! :D
 
-Fonts:
+<b>Fonts:</b>
 
 dzen2 uses the old and kinda obsolete fonts management system (X Logical Font Description), and it only able to work with
 fonts registered by this X system. Usually it's just fonts located in `/usr/share/fonts/X11` directory. It doesn't know about any other fonts installed on your system and it doesn't support tools like `fontconfig`.
