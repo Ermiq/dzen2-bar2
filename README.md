@@ -35,8 +35,8 @@ Some configuration with click actions support available in `config.py` file.
 - `python` (probably version 3+);
 - `amixer` - for volume indicator;
 - `acpi` - for battery indicator (I think it's installed by default on every distribution);
-- for WiFi check out your interface names (run `/sbin/iwconfig`). By default `wifi.py` script uses `"wlp2s0"` name for
-WiFi adapter. On some distros you'll need to change it to "wlan0" (see `wifi.py` file);
+- for WiFi check out your interface names (run `/sbin/iwconfig`). By default `"wlp2s0"` name is used for
+WiFi adapter widget. On some distros you'll need to change it to `wlan0` (see `config.py` file);
 - `playerctl` for media player widget;
 - i3 window manager - for i3 workspaces indication, haha! :D
 
